@@ -1,0 +1,5 @@
+name: 'Social PWA'
+description: 'Makes the website "Installable" like an App on smartphones and enhances it with Service Workers for the use of Push Notifications and an Offline User Experience.'
+type: module
+core: 8.x
+package: Social

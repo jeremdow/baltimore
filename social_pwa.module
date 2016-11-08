@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Generates and attaches the <meta and <link tags needed for the PWA inside the <head>.
+ */
+
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function social_pwa_page_attachments(array &$page) {
+
+  // Get the uploaded icon.
+  $icon = \Drupal::config('social_pwa.settings')->get('icons.icon');
+
+  if ($icon === NULL) {
+    print '<!-- Social PWA Module: Please upload an icon in my settings. Only then I can work properly! -->';
+  } else {
+    // Get the file id and path.
+    $fid = $icon[0];
+    /** @var File $file */
+    $file = File::load($fid);
+    $path = $file->getFileUri();
+
+    // LINK: Provide the icons.
+    $page['#attached']['html_head_link'][][] = array(
+      // Icon support for Chrome on Android.
+      'rel' => 'icon',
+      'sizes' => '128x128',
+      'href' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_128')->buildUrl($path)),
+    );
+    $page['#attached']['html_head_link'][][] = array(
+      // Icon support for Safari on iOS.
+      'rel' => 'apple-touch-icon',
+      'href' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_152')->buildUrl($path)),
+    );
+
+    // Attach the Service Worker in the render array
+    $page['#attached']['library'][] = 'social_pwa/service-worker';
+
+    // Attach the generated Manifest.json
+    $page['#attached']['html_head_link'][][] = array(
+      // Get the contents of the Manifest
+      'rel' => 'manifest',
+      'href' => '/pwa/manifest.json',
+    );
+
+    // META: Attach the meta tags.
+    $meta_pwa = array(
+      // Chrome and Android Support: Add to homescreen for Chrome on Android.
+      'mobile-web-app-capable' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'mobile-web-app-capable',
+          'content' => 'yes',
+        ),
+      ),
+      'application-name' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'application-name',
+          'content' => \Drupal::config('social_pwa.settings')->get('shortname'),
+        ),
+      ),
+      // iOS Support: Add to homescreen for Safari on iOS.
+      'apple-mobile-web-app-capable' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'apple-mobile-web-app-capable',
+          'content' => 'yes',
+        ),
+      ),
+      'apple-mobile-web-app-status-bar-style' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'apple-mobile-web-app-status-bar-style',
+          'content' => 'black',
+        ),
+      ),
+      'apple-mobile-web-app-title' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'apple-mobile-web-app-title',
+          'content' => \Drupal::config('social_pwa.settings')->get('shortname'),
+        ),
+      ),
+      // Windows Support: Tile icon and color for Windows (Should be 144x144)
+      'msapplication-TileImage' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'msapplication-TileImage',
+          'content' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_128')->buildUrl($path)), // y u do dis mcrsft?
+        ),
+      ),
+      'msapplication-TileColor' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'msapplication-TileColor',
+          'content' => \Drupal::config('social_pwa.settings')
+            ->get('theme_color'),
+        ),
+      ),
+      // Color the status bar on mobile devices
+      'theme-color' => array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'name' => 'theme-color',
+          'content' => \Drupal::config('social_pwa.settings')
+            ->get('theme_color'),
+        ),
+      ),
+    );
+    // Generate all of the above.
+    foreach ($meta_pwa as $key => $value) {
+      $page['#attached']['html_head'][] = [$value, $key];
+    }
+  }
+}

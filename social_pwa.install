@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Installation code for the social_pwa module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function social_pwa_uninstall() {
+  $config_factory = Drupal::configFactory();
+  // Delete all of the default settings.
+  $config_factory->getEditable('social_pwa.settings')->delete();
+  // At uninstall, delete the image styles to prevent error when re-enabling this module.
+  $config_factory->getEditable('image.style.social_pwa_icon_128')->delete();
+  $config_factory->getEditable('image.style.social_pwa_icon_152')->delete();
+  $config_factory->getEditable('image.style.social_pwa_icon_192')->delete();
+  drupal_set_message(t('The Social PWA module and all of its settings have been uninstalled.'));
+}
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions related to the installation of social_pwa.
+ */
+function social_pwa_install() {
+  drupal_set_message(t('The Social PWA module has been enabled. In order for this module to work you need to fill out the settings and upload an icon. If you like to do this now, go to: Configuration->System->Social PWA Settings'));
+}

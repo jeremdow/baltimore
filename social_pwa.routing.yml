@@ -1,0 +1,13 @@
+social_pwa.settings:
+  path: '/admin/config/system/social-pwa-settings'
+  defaults:
+    _form: '\Drupal\social_pwa\Form\ManifestSettingsForm'
+    _title: 'Social PWA Settings'
+  requirements:
+    _permission: 'administer site configuration'
+social_pwa.manifest:
+  path: '/pwa/manifest.json'
+  defaults:
+    _controller: '\Drupal\social_pwa\Controller\DataToJson::manifest'
+  requirements:
+    _permission: 'access content'
