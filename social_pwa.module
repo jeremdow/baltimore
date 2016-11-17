@@ -50,7 +50,7 @@ function social_pwa_page_attachments(array &$page) {
 
     // META: Attach the meta tags.
     $meta_pwa = array(
-      // Chrome and Android Support: Add to homescreen for Chrome on Android.
+      // Chrome and Android Support: Add to home screen for Chrome on Android.
       'mobile-web-app-capable' => array(
         '#tag' => 'meta',
         '#attributes' => array(
@@ -62,10 +62,10 @@ function social_pwa_page_attachments(array &$page) {
         '#tag' => 'meta',
         '#attributes' => array(
           'name' => 'application-name',
-          'content' => \Drupal::config('social_pwa.settings')->get('shortname'),
+          'content' => \Drupal::config('social_pwa.settings')->get('short_name'),
         ),
       ),
-      // iOS Support: Add to homescreen for Safari on iOS.
+      // iOS Support: Add to home screen for Safari on iOS.
       'apple-mobile-web-app-capable' => array(
         '#tag' => 'meta',
         '#attributes' => array(
@@ -77,14 +77,15 @@ function social_pwa_page_attachments(array &$page) {
         '#tag' => 'meta',
         '#attributes' => array(
           'name' => 'apple-mobile-web-app-status-bar-style',
-          'content' => 'black',
+            'content' => \Drupal::config('social_pwa.settings')
+                ->get('theme_color'),
         ),
       ),
       'apple-mobile-web-app-title' => array(
         '#tag' => 'meta',
         '#attributes' => array(
           'name' => 'apple-mobile-web-app-title',
-          'content' => \Drupal::config('social_pwa.settings')->get('shortname'),
+          'content' => \Drupal::config('social_pwa.settings')->get('short_name'),
         ),
       ),
       // Windows Support: Tile icon and color for Windows (Should be 144x144)

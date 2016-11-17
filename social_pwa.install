@@ -26,4 +26,6 @@ function social_pwa_uninstall() {
  */
 function social_pwa_install() {
   drupal_set_message(t('The Social PWA module has been enabled. In order for this module to work you need to fill out the settings and upload an icon. If you like to do this now, go to: Configuration->System->Social PWA Settings'));
+
+
 }

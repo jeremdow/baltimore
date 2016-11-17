@@ -106,18 +106,18 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Configuration for Manifest.json'),
       '#open' => FALSE,
     );
-    $form['social_pwa_manifest_settings']['shortname'] = array(
+    $form['social_pwa_manifest_settings']['short_name'] = array(
       '#type' => 'textfield',
-      '#title' => $this->t('Shortname'),
-      '#size' => 10,
-      '#default_value' => $config->get('shortname'),
+      '#title' => $this->t('Short name'),
+      '#size' => 12,
+      '#default_value' => $config->get('short_name'),
       '#required' => TRUE,
       '#description' => $this->t('This will be the name the "app" receives when it is added to the homescreen. So you might want to keep this short.'),
     );
     $form['social_pwa_manifest_settings']['name'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
-      '#size' => 40,
+      '#size' => 30,
       '#default_value' => $config->get('name'),
       '#description' => $this->t('Put in the name of your site.'),
       '#field_suffix' => '<i>(For example, the value of your Basic Site Settings: </i>' . '<b>' . $site_config->get('name') . '</b>)',
@@ -141,14 +141,14 @@ class ManifestSettingsForm extends ConfigFormBase {
       ),
     );
     // ---------------------------------------------------------------------------------
-    $front_page = $site_config->get('page.front') != '/user/login' ? $this->aliasManager->getAliasByPath($site_config->get('page.front')) : '';
+    //$front_page = $site_config->get('page.front') != '/user/login' ? $this->aliasManager->getAliasByPath($site_config->get('page.front')) : '';
     $form['social_pwa_manifest_settings']['start_url'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Start URL'),
-      '#size' => 30,
+      '#size' => 15,
       '#disabled' => TRUE,
-      '#default_value' => $front_page,
-      '#description' => $this->t('This is automatically set with the value from "Default Front Page" of the "Basic Site Settings".'),
+      '#default_value' => $config->get('start_url'), //$front_page,
+      //'#description' => $this->t('This is automatically set with the value from "Default Front Page" of the "Basic Site Settings".'),
       '#field_prefix' => $this->requestContext->getCompleteBaseUrl(),
     );
     $form['social_pwa_manifest_settings']['background_color'] = array(
@@ -205,7 +205,7 @@ class ManifestSettingsForm extends ConfigFormBase {
 
     $config = $this->config('social_pwa.settings');
     $config->set('name', $form_state->getValue('name'))
-      ->set('shortname', $form_state->getValue('shortname'))
+      ->set('short_name', $form_state->getValue('short_name'))
       ->set('start_url', $form_state->getValue('start_url'))
       ->set('background_color', $form_state->getValue('background_color'))
       ->set('theme_color', $form_state->getValue('theme_color'))

@@ -33,7 +33,7 @@ class DataToJson extends ControllerBase{
       $array = array_merge($first_array, $insert_array, $array);
     }
 
-    // Here I use the created function above which has the following parameters:
+    // Here I use the function above which has the following parameters:
     // $array         (The array you want to manipulate)
     // $position      (What key should be removed/replaced?)
     // $insert_array  (What should be the replacement?)
@@ -47,7 +47,7 @@ class DataToJson extends ControllerBase{
     // So basically only the "_core:" key is not allowed through this filter.
     $allowed = [
       'name',
-      'shortname',
+      'short_name',
       'icons',
       'start_url',
       'background_color',

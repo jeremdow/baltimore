@@ -1,7 +1,7 @@
 name: ''
-shortname: ''
+short_name: ''
 icons:
-start_url: ''
+start_url: '/'
 background_color: '#ffffff'
 theme_color: '#ffffff'
 display: 'standalone'
