@@ -13,6 +13,13 @@ use Drupal\image\Entity\ImageStyle;
  */
 function social_pwa_page_attachments(array &$page) {
 
+  $account =  \Drupal::currentUser();
+
+  // PWA is for logged in users only!
+  if ($account->isAnonymous()) {
+    return;
+  }
+
   // Get the uploaded icon.
   $icon = \Drupal::config('social_pwa.settings')->get('icons.icon');
 

@@ -85,11 +85,16 @@
             }
 
             function updateSubscriptionOnServer(subscription) {
-                // TODO: Send subscription to application server
-
                 if (subscription) {
-                    console.log('TODO: send the following to the database');
-                    console.log(JSON.stringify(subscription));
+                    // The subscription id.
+                    var data = subscription.endpoint.replace('https://fcm.googleapis.com/fcm/send/','');
+                    // Send the s_id back to the user object.
+                    var jqxhr = $.get( "/subscription/"+data, function() {
+                        console.log( "subscription added" );
+                    })
+                      .fail(function() {
+                          console.log( "something went wrong during subscription update" );
+                      })
                 }
             }
         }
