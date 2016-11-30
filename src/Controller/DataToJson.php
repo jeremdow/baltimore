@@ -53,7 +53,8 @@ class DataToJson extends ControllerBase{
       'background_color',
       'theme_color',
       'display',
-      'orientation'];
+      'orientation',
+      'gcm_sender_id'];
     $filtered = array_filter(
       $config,
       function ($key) use ($allowed) {

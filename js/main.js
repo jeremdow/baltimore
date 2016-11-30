@@ -66,6 +66,17 @@
             }
 
             function subscribeUser() {
+                // Creating an overlay to provide focus to the permission prompt.
+                $('body').append('<div class="overlay"></div>');
+                $('.overlay').css({
+                    "width": "100%",
+                    "height": "100%",
+                    "background-color": "rgba(0, 0, 0, 0.6)",
+                    "position": "fixed",
+                    "top": "0",
+                    "left": "0",
+                    "z-index": "999"
+                });
                 const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
                 swRegistration.pushManager.subscribe({
                     userVisibleOnly: true,
@@ -73,6 +84,8 @@
                 })
                     .then(function (subscription) {
                         console.log('User is subscribed:', subscription);
+                        // Delete the overlay since the user has accepted.
+                        $('.overlay').remove();
 
                         updateSubscriptionOnServer(subscription);
 
@@ -81,6 +94,8 @@
                     })
                     .catch(function (err) {
                         console.log('Failed to subscribe the user: ', err);
+                        // Delete the overlay since the user has denied.
+                        $('.overlay').remove();
                     });
             }
 
@@ -90,10 +105,10 @@
                     var data = subscription.endpoint.replace('https://fcm.googleapis.com/fcm/send/','');
                     // Send the s_id back to the user object.
                     var jqxhr = $.get( "/subscription/"+data, function() {
-                        console.log( "subscription added" );
+                        console.log( "Subscription added to db." );
                     })
                       .fail(function() {
-                          console.log( "something went wrong during subscription update" );
+                          console.log( "Something went wrong during subscription update." );
                       })
                 }
             }

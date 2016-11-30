@@ -1,8 +1,11 @@
-service-worker:
+main-js:
   js:
     js/main.js: {}
-    js/sw.js: {}
   dependencies:
     - core/jquery
     - core/drupal
     - core/drupalSettings
+
+service-worker:
+  js:
+    js/sw.js: {}

@@ -184,6 +184,14 @@ class ManifestSettingsForm extends ConfigFormBase {
         'landscape' => $this->t('Landscape'),
       ),
     );
+    $form['social_pwa_manifest_settings']['gcm_sender_id'] = array(
+        '#type' => 'textfield',
+        '#title' => $this->t('GCM/FCM Sender ID'),
+        '#size' => 15,
+        '#disabled' => TRUE,
+        '#default_value' => $config->get('gcm_sender_id'),
+        '#description' => $this->t('This is a fixed value given by Firebase for receiving push messages.')
+    );
     return parent::buildForm($form, $form_state);
   }
 
@@ -211,6 +219,7 @@ class ManifestSettingsForm extends ConfigFormBase {
       ->set('theme_color', $form_state->getValue('theme_color'))
       ->set('display', $form_state->getValue('display'))
       ->set('orientation', $form_state->getValue('orientation'))
+      ->set('gcm_sender_id', $form_state->getValue('gcm_sender_id'))
       ->set('icons.icon', $form_state->getValue('icon'))
       ->save();
 

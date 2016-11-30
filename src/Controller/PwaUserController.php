@@ -19,11 +19,12 @@ class PwaUserController extends ControllerBase {
 
     // First fetch user data.
     $user_data = \Drupal::service('user.data')->get('social_pwa', $account->id(), 'subscription');
-    $user_data[] = $subscription_id;
+    if (!in_array($subscription_id, $user_data)) {
+        $user_data[] = $subscription_id;
 
-    // And save it again.
-    \Drupal::service('user.data')->set('social_pwa', $account->id(), 'subscription', $user_data);
-
+        // And save it again.
+        \Drupal::service('user.data')->set('social_pwa', $account->id(), 'subscription', $user_data);
+    }
     return new RedirectResponse('/');
   }
 

@@ -1,5 +1,5 @@
 social_pwa.settings:
-  path: '/admin/config/system/social-pwa-settings'
+  path: '/admin/config/system/pwa'
   defaults:
     _form: '\Drupal\social_pwa\Form\ManifestSettingsForm'
     _title: 'Social PWA Settings'
@@ -26,3 +26,11 @@ social_pwa.save-subscription:
     _controller: '\Drupal\social_pwa\Controller\PwaUserController::saveUser'
   requirements:
     _permission: 'access content'
+
+social_pwa.send-push-notification:
+  path: '/admin/config/system/pwa/notification'
+  defaults:
+    _form: '\Drupal\social_pwa\Form\PushNotificationForm'
+    _title: 'Send Push Notification'
+  requirements:
+    _permission: 'administer site configuration'
