@@ -39,7 +39,7 @@ class PushNotificationForm extends FormBase {
       '#description' => $this->t('This will be the <b>message</b> of the Push Notification.'),
     );
 
-    // TODO: Maybe create a fieldset where the user fills in an url for the click event
+    // TODO: Maybe create a fieldset where the user fills in an url for redirect when the user clicks the notification.
 
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = array(
