@@ -67,7 +67,7 @@
 
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
-                $('body').append('<div class="overlay"></div>');
+                $('body').append('<div class="pwa-overlay"></div>');
                 $('.overlay').css({
                     "width": "100%",
                     "height": "100%",
@@ -85,7 +85,7 @@
                     .then(function (subscription) {
                         console.log('User is subscribed:', subscription);
                         // Delete the overlay since the user has accepted.
-                        $('.overlay').remove();
+                        $('.pwa-overlay').remove();
 
                         updateSubscriptionOnServer(subscription);
 
@@ -95,7 +95,7 @@
                     .catch(function (err) {
                         console.log('Failed to subscribe the user: ', err);
                         // Delete the overlay since the user has denied.
-                        $('.overlay').remove();
+                        $('.pwa-overlay').remove();
                     });
             }
 
