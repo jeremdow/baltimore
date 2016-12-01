@@ -68,7 +68,7 @@
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
                 $('body').append('<div class="pwa-overlay"></div>');
-                $('.overlay').css({
+                $('.pwa-overlay').css({
                     "width": "100%",
                     "height": "100%",
                     "background-color": "rgba(0, 0, 0, 0.6)",
