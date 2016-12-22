@@ -1,3 +1,15 @@
+if( 'function' === typeof importScripts) {
+    importScripts('https://www.gstatic.com/firebasejs/3.6.4/firebase-app.js');
+    importScripts('https://www.gstatic.com/firebasejs/3.6.4/firebase-messaging.js');
+}
+
+firebase.initializeApp({
+    apiKey: "AIzaSyDISUwloZ-D4kqJVAm0-6m-fZzovQCnY8w",
+    messagingSenderId: "205759468478"
+});
+
+const messaging = firebase.messaging();
+
 self.addEventListener('push', function(e) {
     console.log('[Service Worker] Push Received.');
 

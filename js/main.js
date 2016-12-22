@@ -10,14 +10,16 @@
     Drupal.behaviors.serviceWorkerLoad = {
         attach: function () {
 
-            console.log('MAIN Loaded.');
+            console.log('Main.js Loaded.');
 
-            const applicationServerPublicKey = 'BDKOV1CjMAQ6L_eSfJWsZbSS2qv_QwCAYA-ltYzmTPX-AWEDIDRwCTsFaxCCip_WzmwRVnbvwFAtMS00W7JZopw';
+            const messaging = firebase.messaging();
+
+            const vapidPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
 
             var isSubscribed = false;
             var swRegistration = null;
 
-            function urlB64ToUint8Array(base64String) {
+            function urlBase64ToUint8Array(base64String) {
                 const padding = '='.repeat((4 - base64String.length % 4) % 4);
                 const base64 = (base64String + padding)
                     .replace(/\-/g, '+')
@@ -67,42 +69,37 @@
 
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
-                $('body').append('<div class="pwa-overlay"></div>');
-                $('.pwa-overlay').css({
-                    "width": "100%",
-                    "height": "100%",
-                    "background-color": "rgba(0, 0, 0, 0.6)",
-                    "position": "fixed",
-                    "top": "0",
-                    "left": "0",
-                    "z-index": "999"
-                });
-                const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
-                swRegistration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: applicationServerKey
-                })
-                    .then(function (subscription) {
-                        console.log('User is subscribed:', subscription);
-                        // Delete the overlay since the user has accepted.
-                        $('.pwa-overlay').remove();
-
-                        updateSubscriptionOnServer(subscription);
-
-                        isSubscribed = true;
-
+                $('body').append('<div class="social_pwa--overlay" style="width: 100%; height: 100%; position: fixed; background-color: rgba(0,0,0,0.5); left: 0; top: 0; z-index: 999;"></div>');
+                //const applicationServerKey = urlBase64ToUint8Array(applicationServerPublicKey);
+                navigator.serviceWorker.ready.then(function(swRegistration) {
+                    swRegistration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
                     })
-                    .catch(function (err) {
-                        console.log('Failed to subscribe the user: ', err);
-                        // Delete the overlay since the user has denied.
-                        $('.pwa-overlay').remove();
-                    });
+                        .then(function (subscription) {
+                            console.log('User is subscribed:', subscription);
+                            // Delete the overlay since the user has accepted.
+                            $('.social_pwa--overlay').remove();
+
+                            updateSubscriptionOnServer(subscription);
+
+                            isSubscribed = true;
+
+                        })
+                        .catch(function (err) {
+                            console.log('Failed to subscribe the user: ', err);
+                            // Delete the overlay since the user has denied.
+                            $('.social_pwa--overlay').remove();
+                        });
+                })
             }
 
             function updateSubscriptionOnServer(subscription) {
                 if (subscription) {
                     // The subscription id.
                     var data = subscription.endpoint.replace('https://fcm.googleapis.com/fcm/send/','');
+                    console.log(subscription.endpoint);
+                    console.log(data);
                     // Send the s_id back to the user object.
                     var jqxhr = $.get( "/subscription/"+data, function() {
                         console.log( "Subscription added to db." );

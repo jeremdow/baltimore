@@ -8,6 +8,7 @@ use Drupal\Core\Routing\RequestContext;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Path\AliasManagerInterface;
+use Drupal\file\Entity\File;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -91,19 +92,15 @@ class ManifestSettingsForm extends ConfigFormBase {
     $config = $this->config('social_pwa.settings');
     // Get the basic site settings
     $site_config = $this->config('system.site');
-
-    // Development notice
-    $form['notice'] = array(
-      '#type' => 'fieldset',
-      '#title' => $this->t('Please notice:'),
-      '#open' => FALSE,
-      '#description' => $this->t('This module is still being developed. Therefore you might run into some issues or errors.</br>If you like this module, run into any issues or have any other feedback please inform me at frankgraave@getopensocial.com'),
-    );
+    // Get the specific icons. Needed to get the correct path of the file.
+    $icon = \Drupal::config('social_pwa.settings')->get('icons.icon');
+    // Get the file id and path.
+    $fid = $icon[0];
 
     // Start form
     $form['social_pwa_manifest_settings'] = array(
       '#type' => 'fieldset',
-      '#title' => $this->t('Configuration for Manifest.json'),
+      '#title' => $this->t('Configuration for Manifest.json and meta tags'),
       '#open' => FALSE,
     );
     $form['social_pwa_manifest_settings']['short_name'] = array(
@@ -112,7 +109,7 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#size' => 12,
       '#default_value' => $config->get('short_name'),
       '#required' => TRUE,
-      '#description' => $this->t('This will be the name the "app" receives when it is added to the homescreen. So you might want to keep this short.'),
+      '#description' => $this->t('This will be the name the "app" receives when it is added to the home screen. So you might want to keep this short.'),
     );
     $form['social_pwa_manifest_settings']['name'] = array(
       '#type' => 'textfield',
@@ -120,36 +117,18 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#size' => 30,
       '#default_value' => $config->get('name'),
       '#description' => $this->t('Put in the name of your site.'),
-      '#field_suffix' => '<i>(For example, the value of your Basic Site Settings: </i>' . '<b>' . $site_config->get('name') . '</b>)',
     );
-    // ---------------------------------------------------------------------------------
-    // Sub-section for the Icon
-    // ---------------------------------------------------------------------------------
-    $form['social_pwa_manifest_settings']['icons'] = array(
-      '#type' => 'fieldset',
-      '#title' => $this->t('Icons'),
-    );
-    $form['social_pwa_manifest_settings']['icons']['icon'] = array (
+    $form['social_pwa_manifest_settings']['icon'] = array (
       '#type' => 'managed_file',
-      '#title' => $this->t('Icon 256 x 256'),
-      '#description' => $this->t('Provide an square (.png) image that serves as your icon. <i>(Minimum dimensions 256 x 256)</i>'),
+      '#title' => $this->t('App Icon'),
+      '#description' => $this->t('Provide an square (.png) image that serves as your icon when the user adds the website to their home screen. <i>(Minimum dimensions 256 x 256)</i>'),
+      '#default_value' => array($fid),
       '#required' => TRUE,
       '#upload_location' => file_default_scheme() . '://images/touch/',
       '#upload_validators' => array(
         'file_validate_extensions' => array('png'),
         'file_validate_image_resolution' => array('256x256', '256x256'),
       ),
-    );
-    // ---------------------------------------------------------------------------------
-    //$front_page = $site_config->get('page.front') != '/user/login' ? $this->aliasManager->getAliasByPath($site_config->get('page.front')) : '';
-    $form['social_pwa_manifest_settings']['start_url'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Start URL'),
-      '#size' => 15,
-      '#disabled' => TRUE,
-      '#default_value' => $config->get('start_url'), //$front_page,
-      //'#description' => $this->t('This is automatically set with the value from "Default Front Page" of the "Basic Site Settings".'),
-      '#field_prefix' => $this->requestContext->getCompleteBaseUrl(),
     );
     $form['social_pwa_manifest_settings']['background_color'] = array(
       '#type' => 'color',
@@ -163,7 +142,30 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('theme_color'),
       '#description' => $this->t('Select a theme color.'),
     );
-    $form['social_pwa_manifest_settings']['display'] = array(
+    // ---------------------------------------------------------------------------------
+    // Sub-section for Advanced Settings
+    // ---------------------------------------------------------------------------------
+    $form['social_pwa_manifest_advanced_settings'] = array(
+      '#type' => 'details',
+      '#title' => $this->t('Advanced settings'),
+      '#open' => FALSE,
+    );
+    $form['social_pwa_manifest_advanced_settings']['notice'] = array(
+      '#type' => 'fieldset',
+      '#title' => $this->t('Please Notice:'),
+      '#open' => FALSE,
+      '#description' => $this->t('These settings have ben set automatically for the most common use cases. Only change these settings if you know what you are doing.'),
+    );
+    $form['social_pwa_manifest_advanced_settings']['start_url'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Start URL'),
+      '#size' => 15,
+      '#disabled' => FALSE,
+      '#description' => $this->t('The scope for the Service Worker'),
+      '#default_value' => $config->get('start_url'), //$front_page,
+      '#field_prefix' => $this->requestContext->getCompleteBaseUrl(),
+    );
+    $form['social_pwa_manifest_advanced_settings']['display'] = array(
       '#type' => 'select',
       '#title' => $this->t('Display'),
       '#default_value' => $config->get('display'),
@@ -174,7 +176,7 @@ class ManifestSettingsForm extends ConfigFormBase {
         'browser' => $this->t('Browser'),
       ),
     );
-    $form['social_pwa_manifest_settings']['orientation'] = array(
+    $form['social_pwa_manifest_advanced_settings']['orientation'] = array(
       '#type' => 'select',
       '#title' => $this->t('Orientation'),
       '#default_value' => $config->get('orientation'),
@@ -184,14 +186,7 @@ class ManifestSettingsForm extends ConfigFormBase {
         'landscape' => $this->t('Landscape'),
       ),
     );
-    $form['social_pwa_manifest_settings']['gcm_sender_id'] = array(
-        '#type' => 'textfield',
-        '#title' => $this->t('GCM/FCM Sender ID'),
-        '#size' => 15,
-        '#disabled' => TRUE,
-        '#default_value' => $config->get('gcm_sender_id'),
-        '#description' => $this->t('This is a fixed value given by Firebase for receiving push messages.')
-    );
+    // ---------------------------------------------------------------------------------
     return parent::buildForm($form, $form_state);
   }
 
@@ -214,12 +209,11 @@ class ManifestSettingsForm extends ConfigFormBase {
     $config = $this->config('social_pwa.settings');
     $config->set('name', $form_state->getValue('name'))
       ->set('short_name', $form_state->getValue('short_name'))
-      ->set('start_url', $form_state->getValue('start_url'))
+      //->set('start_url', $form_state->getValue('start_url'))
       ->set('background_color', $form_state->getValue('background_color'))
       ->set('theme_color', $form_state->getValue('theme_color'))
       ->set('display', $form_state->getValue('display'))
       ->set('orientation', $form_state->getValue('orientation'))
-      ->set('gcm_sender_id', $form_state->getValue('gcm_sender_id'))
       ->set('icons.icon', $form_state->getValue('icon'))
       ->save();
 
