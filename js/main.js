@@ -14,7 +14,7 @@
 
             const messaging = firebase.messaging();
 
-            const vapidPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
+            const applicationServerPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
 
             var isSubscribed = false;
             var swRegistration = null;
@@ -70,11 +70,11 @@
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
                 $('body').append('<div class="social_pwa--overlay" style="width: 100%; height: 100%; position: fixed; background-color: rgba(0,0,0,0.5); left: 0; top: 0; z-index: 999;"></div>');
-                //const applicationServerKey = urlBase64ToUint8Array(applicationServerPublicKey);
+                const applicationServerKey = urlBase64ToUint8Array(applicationServerPublicKey);
                 navigator.serviceWorker.ready.then(function(swRegistration) {
                     swRegistration.pushManager.subscribe({
                         userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+                        applicationServerKey: applicationServerKey
                     })
                         .then(function (subscription) {
                             console.log('User is subscribed:', subscription);

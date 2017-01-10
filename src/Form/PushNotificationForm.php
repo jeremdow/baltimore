@@ -23,12 +23,9 @@ class PushNotificationForm extends FormBase {
     // Start the form for sending push notifications
     $form['push_notification'] = array(
       '#type' => 'fieldset',
-      '#title' => $this->t('Extreme Push Notification Generator 2000'),
+      '#title' => $this->t('Send a Push Notification'),
       '#open' => FALSE,
     );
-
-
-
 
     // TODO: Get user $account -> $subscription_id (maybe dropdown?)
 
@@ -37,42 +34,41 @@ class PushNotificationForm extends FormBase {
     $user_query->condition('uid',0,'>');
     $user_list = $user_query->execute();
 
+    // Filter to check which users have subscription?
     foreach ($user_list as $key => &$value) {
       /** @var User $account */
       if ($account = User::load($key)) {
         $user_subscription = \Drupal::service('user.data')->get('social_pwa', $account->id(), 'subscription');
         if (isset($user_subscription)) {
-          $value = $account->getAccountName();
+          $value = $account->getDisplayName() . ' (' . $account->getAccountName() . ')';
           continue;
         }
         unset($user_list[$key]);
       }
     }
-    // Filter to check which users have subscription?
+
     $form['push_notification']['selected-user'] = array(
       '#type' => 'select',
       '#title' => $this->t('To user'),
+      '#description' => $this->t('This is a list of users that have given permission to receive notifications.'),
       '#options' => $user_list, // -> then provide filtered list
     );
 
-    // The selected uid value of the form
-    $uid = $form_state->getValue('selected-user');
+//    // The selected uid value of the form
+//    $uid = $form_state->getValue('selected-user');
+//
+//    // Get subscription value of the selected user
+//    $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
+//
+//    // Not necessary, only here to show the subscription id.
+//    $form['push_notification']['to'] = array(
+//      '#type' => 'textfield',
+//      '#title' => $this->t('The user has the following subscription ID:'),
+//      '#size' => 140,
+//      '#disabled' => TRUE,
+//      '#default_value' => $user_subscription[1], // Print the subscription value of the selected uid.
+//    );
 
-    // Get subscription value of the selected user
-    $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
-
-
-
-
-    // Not necessary, only here to show the subscription id.
-    $form['push_notification']['to'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('The user has the following subscription ID:'),
-      '#size' => 140,
-      '#disabled' => TRUE,
-      '#description' => $this->t('This will be the <b>title</b> of the Push Notification.'),
-      '#default_value' => $user_subscription[1], // Print the subscription value of the selected uid.
-    );
     $form['push_notification']['title'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Title'),
@@ -111,14 +107,17 @@ class PushNotificationForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Do the push here bruv.
+    // The selected uid value of the form
+    $uid = $form_state->getValue('selected-user');
+    // Get subscription value of the selected user
+    $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
 
-    $token = $form_state->getValue('to');
+    $token = $user_subscription;
     $title = $form_state->getValue('title');
     $message = $form_state->getValue('message');
 
     $fields = array (
-      'to' => $token,
+      'registration_ids' => $token,
       'data' => array(
         'title' => $title,
         'message' => $message
@@ -131,7 +130,7 @@ class PushNotificationForm extends FormBase {
     );
 
     $ch = curl_init ();
-    curl_setopt ( $ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
+    curl_setopt ( $ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
     curl_setopt ( $ch, CURLOPT_POST, true );
     curl_setopt ( $ch, CURLOPT_HTTPHEADER, $headers );
     curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
