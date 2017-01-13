@@ -106,40 +106,91 @@ class PushNotificationForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state)
+  {
+
     // The selected uid value of the form
     $uid = $form_state->getValue('selected-user');
-    // Get subscription value of the selected user
-    $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
+    if (!empty($uid)) {
+      // Get subscription value of the selected user
+      $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
 
-    $token = $user_subscription;
-    $title = $form_state->getValue('title');
-    $message = $form_state->getValue('message');
+      $endpoint = $user_subscription[0];
 
-    $fields = array (
-      'registration_ids' => $token,
-      'data' => array(
-        'title' => $title,
-        'message' => $message
-      )
-    );
+      //TODO: lege array maken en dan de value checken uit de formstate -> array.
 
-    $headers = array (
-      'Authorization: key=AIzaSyCzoz6AfHfEbaN_7ysmidCcFmKVQQPIG7w',
-      'Content-Type: application/json'
-    );
+      // array of notifications
+      $notifications = array(
+        array(
+          'endpoint' => 'https://updates.push.services.mozilla.com/wpush/v2/' . $endpoint, // Firefox 43+
+          'payload' => 'hello !',
+          'userPublicKey' => 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8',
+          'userAuthToken' => '4iyfc5VbYDifpZ9170MY-xDXVjEmg3tOKRriFFl4Wxo',
+        ), array(
+          'endpoint' => 'https://fcm.googleapis.com/fcm/send/' . $endpoint, // Chrome 
+          'payload' => 'Hallo',
+          'userPublicKey' => null,
+          'userAuthToken' => null,
+        ),
+      );
 
-    $ch = curl_init ();
-    curl_setopt ( $ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
-    curl_setopt ( $ch, CURLOPT_POST, true );
-    curl_setopt ( $ch, CURLOPT_HTTPHEADER, $headers );
-    curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt ( $ch, CURLOPT_POSTFIELDS, json_encode($fields) );
+      $auth = array(
+        //'GCM' => 'MY_GCM_API_KEY', // deprecated and optional, it's here only for compatibility reasons
+        'VAPID' => array(
+          'subject' => 'mailto:frankgraave@gmail.com', // can be a mailto: or your website address
+          'publicKey' => 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8', // (recommended) uncompressed public key P-256 encoded in Base64-URL
+          'privateKey' => '4iyfc5VbYDifpZ9170MY-xDXVjEmg3tOKRriFFl4Wxo', // (recommended) in fact the secret multiplier of the private key encoded in Base64-URL
+        ),
+      );
 
-    $result = curl_exec ( $ch );
-    echo $result;
-    curl_close ( $ch );
+      $webPush = new WebPush($auth);
 
+      foreach ($notifications as $notification) {
+        $webPush->sendNotification(
+          $notification['endpoint'],
+          $notification['payload'],
+          $notification['userPublicKey'],
+          $notification['userAuthToken']
+        );
+      }
+
+      $webPush->flush();
+
+    }
+    drupal_set_message($this->t('Messages were succesfully sent!'));
   }
+//    // The selected uid value of the form
+//    $uid = $form_state->getValue('selected-user');
+//    // Get subscription value of the selected user
+//    $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
+//
+//    $token = $user_subscription;
+//    $title = $form_state->getValue('title');
+//    $message = $form_state->getValue('message');
+//
+//    $fields = array (
+//      'registration_ids' => $token,
+//      'data' => array(
+//        'title' => $title,
+//        'message' => $message
+//      )
+//    );
+//
+//    $headers = array (
+//      'Authorization: key=AIzaSyCzoz6AfHfEbaN_7ysmidCcFmKVQQPIG7w',
+//      'Content-Type: application/json'
+//    );
+//
+//    $ch = curl_init ();
+//    curl_setopt ( $ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+//    curl_setopt ( $ch, CURLOPT_POST, true );
+//    curl_setopt ( $ch, CURLOPT_HTTPHEADER, $headers );
+//    curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+//    curl_setopt ( $ch, CURLOPT_POSTFIELDS, json_encode($fields) );
+//
+//    $result = curl_exec ( $ch );
+//    echo $result;
+//    curl_close ( $ch );
+//  }
 
 }

@@ -9,6 +9,7 @@ namespace Drupal\social_pwa\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class PwaUserController extends ControllerBase {
@@ -25,6 +26,7 @@ class PwaUserController extends ControllerBase {
         // And save it again.
         \Drupal::service('user.data')->set('social_pwa', $account->id(), 'subscription', $user_data);
     }
+//    return new Response();
     return new RedirectResponse('/');
   }
 

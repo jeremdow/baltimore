@@ -46,7 +46,6 @@ function social_pwa_page_attachments(array &$page) {
     );
 
     // Attach the Service Worker in the render array
-    $page['#attached']['library'][] = 'social_pwa/firebase';
     $page['#attached']['library'][] = 'social_pwa/main-js';
     $page['#attached']['library'][] = 'social_pwa/service-worker';
 

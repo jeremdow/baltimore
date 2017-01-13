@@ -12,9 +12,7 @@
 
             console.log('Main.js Loaded.');
 
-            const messaging = firebase.messaging();
-
-            const applicationServerPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
+            const vapidPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
 
             var isSubscribed = false;
             var swRegistration = null;
@@ -70,7 +68,7 @@
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
                 $('body').append('<div class="social_pwa--overlay" style="width: 100%; height: 100%; position: fixed; background-color: rgba(0,0,0,0.5); left: 0; top: 0; z-index: 999;"></div>');
-                const applicationServerKey = urlBase64ToUint8Array(applicationServerPublicKey);
+                const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
                 navigator.serviceWorker.ready.then(function(swRegistration) {
                     swRegistration.pushManager.subscribe({
                         userVisibleOnly: true,
@@ -104,9 +102,35 @@
                     var jqxhr = $.get( "/subscription/"+data, function() {
                         console.log( "Subscription added to db." );
                     })
-                      .fail(function() {
-                          console.log( "Something went wrong during subscription update." );
-                      })
+                        .fail(function() {
+                            console.log( "Something went wrong during subscription update." );
+                        })
+
+                    // $.ajax({
+                    //     url: '/subscription',
+                    //     type: 'POST',
+                    //     data: JSON.stringify(data),
+                    //     contentType: 'application/json; charset=utf-8',
+                    //     dataType: 'json',
+                    //     async: false,
+                    //     success: function(msg) {
+                    //         console.log('great success');
+                    //     },
+                    //     fail: function(msg) {
+                    //         console.log('dikke fail');
+                    //     },
+                    //     complete: function(msg) {
+                    //         console.log('complete: ');
+                    //         console.log(msg);
+                    //     },
+                    //     always: function(msg) {
+                    //         console.log('dikke always');
+                    //     },
+                    //     done: function(msg) {
+                    //         console.log('dikke done');
+                    //     }
+                    // });
+
                 }
             }
         }
