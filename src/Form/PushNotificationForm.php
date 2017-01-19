@@ -114,8 +114,13 @@ class PushNotificationForm extends FormBase {
     if (!empty($uid)) {
       // Get subscription value of the selected user
       $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
-
       $endpoint = $user_subscription[0];
+
+      $title = $form_state->getValue('title');
+      $message = $form_state->getValue('message');
+
+      $payload = json_encode(array($title, $message));
+      dpm($payload);
 
       //TODO: lege array maken en dan de value checken uit de formstate -> array.
 
@@ -123,12 +128,12 @@ class PushNotificationForm extends FormBase {
       $notifications = array(
         array(
           'endpoint' => 'https://updates.push.services.mozilla.com/wpush/v2/' . $endpoint, // Firefox 43+
-          'payload' => 'hello !',
+          'payload' => $payload,
           'userPublicKey' => 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8',
           'userAuthToken' => '4iyfc5VbYDifpZ9170MY-xDXVjEmg3tOKRriFFl4Wxo',
         ), array(
           'endpoint' => 'https://fcm.googleapis.com/fcm/send/' . $endpoint, // Chrome 
-          'payload' => 'Hallo',
+          'payload' => 'Harde TEST',
           'userPublicKey' => null,
           'userAuthToken' => null,
         ),

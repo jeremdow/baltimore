@@ -32,6 +32,10 @@
                 return outputArray;
             }
 
+            navigator.serviceWorker.addEventListener('message', function(e) {
+                var message = e.data;
+            });
+
             if ('serviceWorker' in navigator && 'PushManager' in window) {
                 console.log('Service Worker and Push is supported.');
 
