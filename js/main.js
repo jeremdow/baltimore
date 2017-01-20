@@ -98,43 +98,26 @@
 
             function updateSubscriptionOnServer(subscription) {
                 if (subscription) {
-                    // The subscription id.
-                    var data = subscription.endpoint.replace('https://fcm.googleapis.com/fcm/send/','');
-                    console.log(subscription.endpoint);
-                    console.log(data);
-                    // Send the s_id back to the user object.
-                    var jqxhr = $.get( "/subscription/"+data, function() {
-                        console.log( "Subscription added to db." );
-                    })
-                        .fail(function() {
-                            console.log( "Something went wrong during subscription update." );
-                        })
-
-                    // $.ajax({
-                    //     url: '/subscription',
-                    //     type: 'POST',
-                    //     data: JSON.stringify(data),
-                    //     contentType: 'application/json; charset=utf-8',
-                    //     dataType: 'json',
-                    //     async: false,
-                    //     success: function(msg) {
-                    //         console.log('great success');
-                    //     },
-                    //     fail: function(msg) {
-                    //         console.log('dikke fail');
-                    //     },
-                    //     complete: function(msg) {
-                    //         console.log('complete: ');
-                    //         console.log(msg);
-                    //     },
-                    //     always: function(msg) {
-                    //         console.log('dikke always');
-                    //     },
-                    //     done: function(msg) {
-                    //         console.log('dikke done');
-                    //     }
-                    // });
-
+                    $.ajax({
+                        url: '/subscription',
+                        type: 'POST',
+                        data: JSON.stringify(subscription),
+                        dataType: "json",
+                        contentType: "application/json;charset=utf-8",
+                        async: true,
+                        success: function(msg) {
+                            console.log('dikke success');
+                        },
+                        fail: function(msg) {
+                            console.log('Something went wrong during subscription update.');
+                        },
+                        complete: function(msg) {
+                            console.log('Subscription added to database.');
+                        },
+                        done: function(msg) {
+                            console.log('dikke done');
+                        }
+                    });
                 }
             }
         }

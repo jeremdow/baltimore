@@ -16,11 +16,9 @@ class PushNotificationController extends ControllerBase {
    */
   public function extractData(Request $request, $endpoint) {
 
-    // error checking
+    // need some magic to get the message/payload here
 
-    // get message here
-
-    return new JsonResponse(array('notification' => array('message' => 'testkaas')));
+    return new JsonResponse(array('notification' => array('message' => 'Hard test')));
 
   }
 

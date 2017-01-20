@@ -1,44 +1,25 @@
-// self.addEventListener('push', function(event) {
-//     console.log('[Service Worker] Push Received.');
-//     var payload = event.data ? event.data.text() : 'no payload';
-//    event.waitUntil(self.registration.showNotification('Open Social', {
-//             body: payload
-//         })
-//     );
-//     // var notificationTitle = 'Social PWA';
-//     // var notificationOptions = {
-//     //     body: 'Open Social says Hello!',
-//     //     icon: '/sites/default/files/images/touch/open-social.png',
-//     //     badge: ''
-//     // };
-//     //
-//     // event.waitUntil(self.registration.showNotification(notificationTitle, notificationOptions));
-// });
-
 self.addEventListener('push', function (event) {
     if (!(self.Notification && self.Notification.permission === 'granted')) {
         return;
     }
 
-    var sendNotification = function(message, tag) {
+    var sendNotification = function(message) {
 
         var title = "Open Social",
             icon = '/sites/default/files/images/touch/open-social.png';
 
-        message = message || 'No Payload';
-        tag = tag || 'general';
+        message = message || 'Message received!';
 
         return self.registration.showNotification(title, {
             body: message,
-            icon: icon,
-            tag: tag
+            icon: icon
         });
     };
 
     if (event.data) {
         var data = event.data.json();
         event.waitUntil(
-            sendNotification(data.message, data.tag)
+            sendNotification(data.notification.message)
         );
     } else {
         event.waitUntil(
@@ -46,25 +27,24 @@ self.addEventListener('push', function (event) {
                 if (!subscription) {
                     return;
                 }
-                var data = subscription.endpoint.replace('https://fcm.googleapis.com/fcm/send/','');
-                return fetch('/send/notification/' + data).then(function (response) {
-                    //console.log(response.json());
-                    if (response.status !== 200) {
-                        throw new Error();
-                    }
-                    console.log('kaas');
-                    // Examine the text in the response
-                    return response.json().then(function (data) {
-                        console.log(data);
-                        if (data.error || !data.notification) {
+                if (subscription) {
+                    return fetch('/send/notification/' + encodeURIComponent(subscription)).then(function (response) {
+                        //console.log(response.json());
+                        if (response.status !== 200) {
                             throw new Error();
                         }
-                        console.log(data.notification.message);
-                        return sendNotification(data.notification.message);
+                        // Examine the text in the response
+                        return response.json().then(function (data) {
+                            if (data.error || !data.notification) {
+                                throw new Error();
+                            }
+                            console.log(data.notification.message);
+                            return sendNotification(data.notification.message);
+                        });
+                    }).catch(function () {
+                        return sendNotification();
                     });
-                }).catch(function () {
-                    return sendNotification();
-                });
+                }
             })
         );
     }

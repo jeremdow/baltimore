@@ -21,7 +21,7 @@ social_pwa.service-worker:
     _permission: 'access content'
 
 social_pwa.save-subscription:
-  path: '/subscription/{subscription_id}'
+  path: '/subscription'
   defaults:
     _controller: '\Drupal\social_pwa\Controller\PwaUserController::saveUser'
   requirements:
