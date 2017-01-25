@@ -10,7 +10,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 
-//TODO: Rename this to something more logic like "SubscriptionController"
+//TODO: 1. Rename this to something more logic like "SubscriptionController"
+//TODO: 2. Extend subscription check. If user has new endpoint vendor, save it also.
 
 class PwaUserController extends ControllerBase {
 
@@ -24,7 +25,7 @@ class PwaUserController extends ControllerBase {
     // First fetch user data.
     $user_data = \Drupal::service('user.data')->get('social_pwa', $account->id(), 'subscription');
 
-    // Check if there already is an endpoint for this user
+    // Check if there already is an endpoint for this user that matches the current endpoint.
     if (!in_array($subscriptionData['endpoint'], $user_data)) {
         $user_data[] = $subscriptionData['endpoint'];
 

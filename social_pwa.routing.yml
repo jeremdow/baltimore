@@ -30,7 +30,7 @@ social_pwa.save-subscription:
 social_pwa.push-notification-controller:
   path: '/send/notification/{endpoint}'
   defaults:
-    _controller: '\Drupal\social_pwa\Controller\PushNotificationController::extractData'
+    _controller: '\Drupal\social_pwa\Controller\PushNotificationController::sendPush'
   requirements:
     _permission: 'access content'
 

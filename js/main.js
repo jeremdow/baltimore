@@ -12,6 +12,7 @@
 
             console.log('Main.js Loaded.');
 
+            // TODO: Should not be public. Rewrite the subscription process.
             const vapidPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
 
             var isSubscribed = false;
@@ -69,6 +70,7 @@
                     });
             }
 
+            // TODO: Rewrite the subscribeUser function because of vapid.
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
                 $('body').append('<div class="social_pwa--overlay" style="width: 100%; height: 100%; position: fixed; background-color: rgba(0,0,0,0.5); left: 0; top: 0; z-index: 999;"></div>');
@@ -97,29 +99,47 @@
             }
 
             function updateSubscriptionOnServer(subscription) {
-                if (subscription) {
+
+                    var key = subscription.getKey('p256dh');
+                    var token = subscription.getKey('auth');
+                    // console.log(key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null);
+                    // console.log(token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null);
+
+                    var sub = JSON.stringify({
+                        'endpoint': getEndpoint(subscription),
+                        'key': key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
+                        'token': token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null
+                    });
+
                     $.ajax({
                         url: '/subscription',
                         type: 'POST',
-                        data: JSON.stringify(subscription),
+                        data: sub,
                         dataType: "json",
                         contentType: "application/json;charset=utf-8",
                         async: true,
-                        success: function(msg) {
-                            console.log('dikke success');
-                        },
                         fail: function(msg) {
                             console.log('Something went wrong during subscription update.');
                         },
                         complete: function(msg) {
                             console.log('Subscription added to database.');
-                        },
-                        done: function(msg) {
-                            console.log('dikke done');
                         }
                     });
-                }
+                return true;
             }
+
+            function getEndpoint(pushSubscription) {
+                var endpoint = pushSubscription.endpoint;
+                var subscriptionId = pushSubscription.subscriptionId;
+
+                // fix Chrome < 45
+                if (subscriptionId && endpoint.indexOf(subscriptionId) === -1) {
+                    endpoint += '/' + subscriptionId;
+                }
+
+                return endpoint;
+            }
+
         }
     }
 

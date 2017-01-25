@@ -91,8 +91,9 @@ class PushNotificationForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state)
-  {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+
+    //TODO: Waar wordt dit formulier naar toe verstuurd? Fetch moet hierop luisteren dmv callback?
 
     // The selected uid value of the form
     $uid = $form_state->getValue('selected-user');
@@ -100,18 +101,16 @@ class PushNotificationForm extends FormBase {
       // Get subscription value of the selected user
       $user_subscription = \Drupal::service('user.data')->get('social_pwa', $uid, 'subscription');
       $endpoint = $user_subscription[0];
-      //dpm($endpoint);
 
       $title = $form_state->getValue('title');
       $message = $form_state->getValue('message');
 
       $payload = json_encode(array($title, $message));
-      //dpm($payload);
 
       // array of notifications
       $notifications = array(
         array(
-          'endpoint' => $endpoint, // Firefox 43+
+          'endpoint' => $endpoint,
           'payload' => $payload,
           'userPublicKey' => null, //'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8',
           'userAuthToken' => null, //'4iyfc5VbYDifpZ9170MY-xDXVjEmg3tOKRriFFl4Wxo',
@@ -119,9 +118,9 @@ class PushNotificationForm extends FormBase {
       );
 
       $auth = array(
-        //'GCM' => 'MY_GCM_API_KEY', // deprecated and optional, it's here only for compatibility reasons
+        //'GCM' => 'MY_GCM_API_KEY', // Deprecated and optional, it's here only for compatibility reasons
         'VAPID' => array(
-          'subject' => 'mailto:frankgraave@gmail.com', // can be a mailto: or your website address
+          'subject' => 'mailto:frankgraave@gmail.com', // Can be a mailto: or your website address
           'publicKey' => 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8', // (recommended) uncompressed public key P-256 encoded in Base64-URL
           'privateKey' => '4iyfc5VbYDifpZ9170MY-xDXVjEmg3tOKRriFFl4Wxo', // (recommended) in fact the secret multiplier of the private key encoded in Base64-URL
         ),

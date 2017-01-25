@@ -27,8 +27,7 @@ self.addEventListener('push', function (event) {
                 if (!subscription) {
                     return;
                 }
-                if (subscription) {
-                    return fetch('/send/notification/' + encodeURIComponent(subscription)).then(function (response) {
+                    return fetch('/send/notification/getPayload?endpoint=' + encodeURIComponent(subscription)).then(function (response) {
                         //console.log(response.json());
                         if (response.status !== 200) {
                             throw new Error();
@@ -38,18 +37,17 @@ self.addEventListener('push', function (event) {
                             if (data.error || !data.notification) {
                                 throw new Error();
                             }
-                            console.log(data.notification.message);
+                            //console.log(data.notification.message);
                             return sendNotification(data.notification.message);
                         });
                     }).catch(function () {
                         return sendNotification();
                     });
-                }
+
             })
         );
     }
 });
-
 
 self.addEventListener('notificationclick', function(event) {
     console.log('[Service Worker] Notification click Received.');

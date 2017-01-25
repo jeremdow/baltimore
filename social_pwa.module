@@ -23,6 +23,7 @@ function social_pwa_page_attachments(array &$page) {
   // Get the uploaded icon.
   $icon = \Drupal::config('social_pwa.settings')->get('icons.icon');
 
+  //TODO: Add check for HTTPS connection.
   if ($icon === NULL) {
     print '<!-- Social PWA Module: Please upload an icon in my settings. Only then I can work properly! -->';
   } else {
