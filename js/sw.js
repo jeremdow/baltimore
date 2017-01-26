@@ -3,62 +3,68 @@ self.addEventListener('push', function (event) {
         return;
     }
 
-    var sendNotification = function(message) {
-
+    var sendNotification = function(payload) {
         var title = "Open Social",
             icon = '/sites/default/files/images/touch/open-social.png';
 
-        message = message || 'Message received!';
+        payload = payload || 'You\'ve received a message!';
 
         return self.registration.showNotification(title, {
-            body: message,
+            body: payload,
             icon: icon
         });
     };
 
     if (event.data) {
         var data = event.data.json();
+        console.log(event.data);
+        console.log(event.data.json());
         event.waitUntil(
-            sendNotification(data.notification.message)
-        );
-    } else {
-        event.waitUntil(
-            self.registration.pushManager.getSubscription().then(function(subscription) {
-                if (!subscription) {
-                    return;
-                }
-                    return fetch('/send/notification/getPayload?endpoint=' + encodeURIComponent(subscription)).then(function (response) {
-                        //console.log(response.json());
-                        if (response.status !== 200) {
-                            throw new Error();
-                        }
-                        // Examine the text in the response
-                        return response.json().then(function (data) {
-                            if (data.error || !data.notification) {
-                                throw new Error();
-                            }
-                            //console.log(data.notification.message);
-                            return sendNotification(data.notification.message);
-                        });
-                    }).catch(function () {
-                        return sendNotification();
-                    });
-
-            })
+            sendNotification(data.message)
         );
     }
+
+    // CRUCIAL PART:
+    // Create a controller where this sw.js fetches the last payload sent to
+    // an subscription by checking it. When the browser is closed and the user
+    // starts the browser, this sw.js should fetch the latest push notification.
+    //
+    // else {
+    //     event.waitUntil(
+    //         self.registration.pushManager.getSubscription().then(function(subscription) {
+    //             if (!subscription) {
+    //                 return;
+    //             }
+    //                 return fetch('/getPayload?endpoint=' + encodeURIComponent(subscription.endpoint)).then(function (response) {
+    //                     if (response.status !== 200) {
+    //                         throw new Error();
+    //                     }
+    //                     // Examine the text in the response
+    //                     return response.json().then(function (data) {
+    //                         if (data.error || !data) {
+    //                             throw new Error();
+    //                         }
+    //                         return sendNotification(data);
+    //                     });
+    //                 }).catch(function () {
+    //                     return sendNotification();
+    //                 });
+    //
+    //         })
+    //     );
+    // }
 });
 
+// Build this so when the notification shows up and the user
+// clicks the notification, the user will be redirected to
+// the correct page.
 self.addEventListener('notificationclick', function(event) {
     console.log('[Service Worker] Notification click Received.');
 
     event.notification.close();
 
     event.waitUntil(
+        // Make this the url where it needs to go to
         clients.openWindow('https://social.dev')
     );
-});
-
-self.addEventListener('message', function (event) {
-    var message = event.data;
 });

@@ -23,14 +23,7 @@ social_pwa.service-worker:
 social_pwa.save-subscription:
   path: '/subscription'
   defaults:
-    _controller: '\Drupal\social_pwa\Controller\PwaUserController::saveUser'
-  requirements:
-    _permission: 'access content'
-
-social_pwa.push-notification-controller:
-  path: '/send/notification/{endpoint}'
-  defaults:
-    _controller: '\Drupal\social_pwa\Controller\PushNotificationController::sendPush'
+    _controller: '\Drupal\social_pwa\Controller\UserSubscriptionController::saveUser'
   requirements:
     _permission: 'access content'
 

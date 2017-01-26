@@ -33,10 +33,6 @@
                 return outputArray;
             }
 
-            navigator.serviceWorker.addEventListener('message', function(e) {
-                var message = e.data;
-            });
-
             if ('serviceWorker' in navigator && 'PushManager' in window) {
                 console.log('Service Worker and Push is supported.');
 
@@ -102,19 +98,17 @@
 
                     var key = subscription.getKey('p256dh');
                     var token = subscription.getKey('auth');
-                    // console.log(key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null);
-                    // console.log(token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null);
 
-                    var sub = JSON.stringify({
+                    var subscriptionData = JSON.stringify({
                         'endpoint': getEndpoint(subscription),
                         'key': key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
                         'token': token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null
                     });
-
+                    //console.log(subscriptionData);
                     $.ajax({
                         url: '/subscription',
                         type: 'POST',
-                        data: sub,
+                        data: subscriptionData,
                         dataType: "json",
                         contentType: "application/json;charset=utf-8",
                         async: true,
