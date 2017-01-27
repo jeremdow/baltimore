@@ -1,7 +1,8 @@
 <?php
 
 /**
- * This will convert the settings to json format.
+ * This will convert the social_pwa.settings.yml array to json format
+ * and output it to the /manifest.json route.
  */
 
 namespace Drupal\social_pwa\Controller;
@@ -12,9 +13,9 @@ use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class DataToJson extends ControllerBase{
+class ManifestOutputController extends ControllerBase{
 
-  public function manifest() {
+  public function generateManifest() {
 
     // Get all the current settings stored in social_pwa.settings.
     $config = \Drupal::config('social_pwa.settings')->get();
@@ -39,6 +40,7 @@ class DataToJson extends ControllerBase{
     // $insert_array  (What should be the replacement?)
     array_insert($config, 3, array('icons' => array(
       ['src' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_128')->buildUrl($path)), 'sizes' => '128x128', 'type' => 'image/png'],
+      ['src' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_144')->buildUrl($path)), 'sizes' => '144x144', 'type' => 'image/png'],
       ['src' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_152')->buildUrl($path)), 'sizes' => '152x152', 'type' => 'image/png'],
       ['src' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_192')->buildUrl($path)), 'sizes' => '192x192', 'type' => 'image/png']
     )));
@@ -53,8 +55,7 @@ class DataToJson extends ControllerBase{
       'background_color',
       'theme_color',
       'display',
-      'orientation',
-      'gcm_sender_id'];
+      'orientation'];
     $filtered = array_filter(
       $config,
       function ($key) use ($allowed) {

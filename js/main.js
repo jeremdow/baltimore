@@ -1,6 +1,8 @@
 /**
- * @file
- * Registers the Service Worker. See /social_pwa/js/sw.js.
+ * @file Main.js
+ *  - Registers the Service Worker. (See /social_pwa/js/sw.js)
+ *  - Subscribes the user.
+ *  - Saves the user subscription object.
  */
 
 (function ($, Drupal, drupalSettings) {
@@ -9,8 +11,6 @@
 
     Drupal.behaviors.serviceWorkerLoad = {
         attach: function () {
-
-            console.log('Main.js Loaded.');
 
             const vapidPublicKey = 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8';
 
@@ -33,12 +33,10 @@
             }
 
             if ('serviceWorker' in navigator && 'PushManager' in window) {
-                console.log('Service Worker and Push is supported.');
-
+                //console.log('Service Worker and Push is supported.');
                 navigator.serviceWorker.register('/sw.js')
                     .then(function (swReg) {
-                        console.log('Service Worker is registered', swReg);
-
+                        //console.log('Service Worker is registered', swReg);
                         swRegistration = swReg;
                         checkSubscription();
                     })
@@ -56,15 +54,15 @@
                         isSubscribed = !(subscription === null);
 
                         if (isSubscribed) {
-                            console.log('User IS subscribed.');
+                            console.log('User is already subscribed.');
                         } else {
-                            console.log('User is NOT subscribed.');
+                            console.log('User is not subscribed yet. Trying to subscribe...');
                         }
-
                         subscribeUser();
                     });
             }
 
+            // TODO: Rewrite the subscribeUser function because of vapid.
             function subscribeUser() {
                 // Creating an overlay to provide focus to the permission prompt.
                 $('body').append('<div class="social_pwa--overlay" style="width: 100%; height: 100%; position: fixed; background-color: rgba(0,0,0,0.5); left: 0; top: 0; z-index: 999;"></div>');
@@ -74,65 +72,77 @@
                         userVisibleOnly: true,
                         applicationServerKey: applicationServerKey
                     })
+                        // Delete the overlay since the user has accepted.
                         .then(function (subscription) {
-                            console.log('User is subscribed:', subscription);
-                            // Delete the overlay since the user has accepted.
                             $('.social_pwa--overlay').remove();
-
                             updateSubscriptionOnServer(subscription);
-
                             isSubscribed = true;
-
                         })
+                        // Delete the overlay since the user has denied.
                         .catch(function (err) {
                             console.log('Failed to subscribe the user: ', err);
-                            // Delete the overlay since the user has denied.
                             $('.social_pwa--overlay').remove();
                         });
                 })
             }
 
             function updateSubscriptionOnServer(subscription) {
-                if (subscription) {
-                    // The subscription id.
-                    var data = subscription.endpoint.replace('https://fcm.googleapis.com/fcm/send/','');
-                    console.log(subscription.endpoint);
-                    console.log(data);
-                    // Send the s_id back to the user object.
-                    var jqxhr = $.get( "/subscription/"+data, function() {
-                        console.log( "Subscription added to db." );
-                    })
-                        .fail(function() {
-                            console.log( "Something went wrong during subscription update." );
-                        })
 
-                    // $.ajax({
-                    //     url: '/subscription',
-                    //     type: 'POST',
-                    //     data: JSON.stringify(data),
-                    //     contentType: 'application/json; charset=utf-8',
-                    //     dataType: 'json',
-                    //     async: false,
-                    //     success: function(msg) {
-                    //         console.log('great success');
-                    //     },
-                    //     fail: function(msg) {
-                    //         console.log('dikke fail');
-                    //     },
-                    //     complete: function(msg) {
-                    //         console.log('complete: ');
-                    //         console.log(msg);
-                    //     },
-                    //     always: function(msg) {
-                    //         console.log('dikke always');
-                    //     },
-                    //     done: function(msg) {
-                    //         console.log('dikke done');
-                    //     }
-                    // });
+                var key = subscription.getKey('p256dh');
+                var token = subscription.getKey('auth');
 
-                }
+                var subscriptionData = JSON.stringify({
+                    'endpoint': getEndpoint(subscription),
+                    'key': key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
+                    'token': token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null
+                });
+
+                $.ajax({
+                    url: '/subscription',
+                    type: 'POST',
+                    data: subscriptionData,
+                    dataType: "json",
+                    contentType: "application/json;charset=utf-8",
+                    async: true,
+                    fail: function(msg) {
+                        console.log('Something went wrong during subscription update.');
+                    },
+                    complete: function(msg) {
+                        console.log('Subscription added to database.');
+                    }
+                });
+                return true;
             }
+
+            function getEndpoint(pushSubscription) {
+                var endpoint = pushSubscription.endpoint;
+                var subscriptionId = pushSubscription.subscriptionId;
+
+                // Fix Chrome < 45
+                if (subscriptionId && endpoint.indexOf(subscriptionId) === -1) {
+                    endpoint += '/' + subscriptionId;
+                }
+                return endpoint;
+            }
+
+            // Install banner section below
+            window.addEventListener('beforeinstallprompt', function(e) {
+                console.log('[Service Worker] beforeinstallprompt event fired.');
+
+                // e.userChoice will return a Promise. For more details read: http://www.html5rocks.com/en/tutorials/es6/promises/
+                e.userChoice.then(function(choiceResult) {
+
+                    console.log(choiceResult.outcome);
+
+                    if(choiceResult.outcome == 'dismissed') {
+                        console.log('User cancelled homescreen install');
+                    }
+                    else {
+                        console.log('User added to homescreen');
+                    }
+                });
+
+            });
         }
     }
 

@@ -118,6 +118,7 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('name'),
       '#description' => $this->t('Put in the name of your site.'),
     );
+    // TODO: There is a fixed value needed for iOS icon because Safari on iOS won't accept .png?itok=hash extension
     $form['social_pwa_manifest_settings']['icon'] = array (
       '#type' => 'managed_file',
       '#title' => $this->t('App Icon'),
@@ -154,7 +155,7 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Please Notice:'),
       '#open' => FALSE,
-      '#description' => $this->t('These settings have ben set automatically for the most common use cases. Only change these settings if you know what you are doing.'),
+      '#description' => $this->t('These settings have ben set automatically to serve the most common use cases. Only change these settings if you know what you are doing.'),
     );
     $form['social_pwa_manifest_advanced_settings']['start_url'] = array(
       '#type' => 'textfield',
@@ -162,7 +163,7 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#size' => 15,
       '#disabled' => FALSE,
       '#description' => $this->t('The scope for the Service Worker'),
-      '#default_value' => $config->get('start_url'), //$front_page,
+      '#default_value' => $config->get('start_url'),
       '#field_prefix' => $this->requestContext->getCompleteBaseUrl(),
     );
     $form['social_pwa_manifest_advanced_settings']['display'] = array(
@@ -209,7 +210,7 @@ class ManifestSettingsForm extends ConfigFormBase {
     $config = $this->config('social_pwa.settings');
     $config->set('name', $form_state->getValue('name'))
       ->set('short_name', $form_state->getValue('short_name'))
-      //->set('start_url', $form_state->getValue('start_url'))
+      ->set('start_url', $form_state->getValue('start_url'))
       ->set('background_color', $form_state->getValue('background_color'))
       ->set('theme_color', $form_state->getValue('theme_color'))
       ->set('display', $form_state->getValue('display'))
@@ -220,3 +221,5 @@ class ManifestSettingsForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
   }
 }
+
+

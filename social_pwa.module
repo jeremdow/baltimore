@@ -23,6 +23,7 @@ function social_pwa_page_attachments(array &$page) {
   // Get the uploaded icon.
   $icon = \Drupal::config('social_pwa.settings')->get('icons.icon');
 
+  //TODO: Add check for HTTPS connection.
   if ($icon === NULL) {
     print '<!-- Social PWA Module: Please upload an icon in my settings. Only then I can work properly! -->';
   } else {
@@ -53,7 +54,7 @@ function social_pwa_page_attachments(array &$page) {
     $page['#attached']['html_head_link'][][] = array(
       // Get the contents of the Manifest
       'rel' => 'manifest',
-      'href' => '/pwa/manifest.json',
+      'href' => '/manifest.json',
     );
 
     // META: Attach the meta tags.
@@ -101,7 +102,7 @@ function social_pwa_page_attachments(array &$page) {
         '#tag' => 'meta',
         '#attributes' => array(
           'name' => 'msapplication-TileImage',
-          'content' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_128')->buildUrl($path)), // y u do dis mcrsft?
+          'content' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_144')->buildUrl($path)), // y u do dis mcrsft?
         ),
       ),
       'msapplication-TileColor' => array(

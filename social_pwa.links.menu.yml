@@ -5,7 +5,7 @@ social_pwa.admin_settings:
   route_name: social_pwa.settings
 
 social_pwa.push_notification:
-  title: 'Push Notification'
+  title: 'Send Push Notification'
   description: 'Send push notifications to that have enabled notifications'
   parent: social_pwa.admin_settings
   route_name: social_pwa.send-push-notification
