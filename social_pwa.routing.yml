@@ -7,9 +7,9 @@ social_pwa.settings:
     _permission: 'administer site configuration'
 
 social_pwa.manifest:
-  path: '/pwa/manifest.json'
+  path: '/manifest.json'
   defaults:
-    _controller: '\Drupal\social_pwa\Controller\DataToJson::manifest'
+    _controller: '\Drupal\social_pwa\Controller\ManifestOutputController::generateManifest'
   requirements:
     _permission: 'access content'
 
@@ -23,7 +23,7 @@ social_pwa.service-worker:
 social_pwa.save-subscription:
   path: '/subscription'
   defaults:
-    _controller: '\Drupal\social_pwa\Controller\UserSubscriptionController::saveUser'
+    _controller: '\Drupal\social_pwa\Controller\UserSubscriptionController::saveSubscription'
   requirements:
     _permission: 'access content'
 
