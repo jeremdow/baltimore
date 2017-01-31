@@ -4,6 +4,7 @@ namespace Drupal\social_pwa\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Routing\RequestContext;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathValidatorInterface;
@@ -118,10 +119,9 @@ class ManifestSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('name'),
       '#description' => $this->t('Put in the name of your site.'),
     );
-    // TODO: There is a fixed value needed for iOS icon because Safari on iOS won't accept .png?itok=hash extension
     $form['social_pwa_manifest_settings']['icon'] = array (
       '#type' => 'managed_file',
-      '#title' => $this->t('App Icon'),
+      '#title' => $this->t('General App Icon'),
       '#description' => $this->t('Provide an square (.png) image that serves as your icon when the user adds the website to their home screen. <i>(Minimum dimensions 256 x 256)</i>'),
       '#default_value' => array($fid),
       '#required' => TRUE,
@@ -131,6 +131,19 @@ class ManifestSettingsForm extends ConfigFormBase {
         'file_validate_image_resolution' => array('256x256', '256x256'),
       ),
     );
+    // TODO: There is a fixed value needed for iOS icon because Safari on iOS won't accept .png?itok=hash extension
+//    $form['social_pwa_manifest_settings']['ios_icon'] = array (
+//      '#type' => 'managed_file',
+//      '#title' => $this->t('iOS App Icon'),
+//      '#description' => $this->t('Provide the same icon, but then in fixed dimensions. <i>(Minimum dimensions 144 x 144)</i>'),
+//      '#default_value' => array($fid),
+//      '#required' => TRUE,
+//      '#upload_location' => file_default_scheme() . '://images/touch/',
+//      '#upload_validators' => array(
+//        'file_validate_extensions' => array('png'),
+//        'file_validate_image_resolution' => array('144x144', '144x144'),
+//      ),
+//    );
     $form['social_pwa_manifest_settings']['background_color'] = array(
       '#type' => 'color',
       '#title' => $this->t('Background Color'),
@@ -219,6 +232,10 @@ class ManifestSettingsForm extends ConfigFormBase {
       ->save();
 
     parent::submitForm($form, $form_state);
+
+    // Set up a message
+    $sendPushLink = Link::createFromRoute('send a Push Notification!', 'social_pwa.send-push-notification')->toString();
+    drupal_set_message(t('You can now @link', array('@link' => $sendPushLink)), 'status');
   }
 }
 

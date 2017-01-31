@@ -4,11 +4,9 @@ namespace Drupal\social_pwa\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Link;
 use Drupal\user\Entity\User;
 use Minishlink\WebPush\WebPush;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class PushNotificationForm extends FormBase {
 
@@ -23,19 +21,13 @@ class PushNotificationForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // Start the form for sending push notifications
-    $form['push_notification'] = array(
-      '#type' => 'fieldset',
-      '#title' => $this->t('Send a Push Notification'),
-      '#open' => FALSE,
-    );
 
+    // First we check if there are users on the platform that have a subscription
     // Retrieve all uid
     $user_query = \Drupal::entityQuery('user');
     $user_query->condition('uid',0,'>');
     $user_list = $user_query->execute();
-
-    // Filter to check which users have subscription?
+    // Filter to check which users have subscription
     foreach ($user_list as $key => &$value) {
       /** @var User $account */
       if ($account = User::load($key)) {
@@ -48,39 +40,50 @@ class PushNotificationForm extends FormBase {
       }
     }
 
-    $form['push_notification']['selected-user'] = array(
-      '#type' => 'select',
-      '#title' => $this->t('To user'),
-      '#description' => $this->t('This is a list of users that have given permission to receive notifications.'),
-      '#options' => $user_list, // -> then provide filtered list
-    );
+    // Get a link to the Social PWA Settings that shows up in the message below.
+    $pwaSettingsLink = Link::createFromRoute('Social PWA Settings', 'social_pwa.settings')->toString();
+    // Check if the $user_list does have values
+    if (empty($user_list)) {
+      drupal_set_message(t('There are currently no users subscribed to receive push notifications! Also make sure you have the @link configured and saved.', array('@link' => $pwaSettingsLink)), 'warning');
+    } else {
+      // Start the form for sending push notifications
+      $form['push_notification'] = array(
+        '#type' => 'fieldset',
+        '#title' => $this->t('Send a Push Notification'),
+        '#open' => FALSE,
+      );
+      $form['push_notification']['selected-user'] = array(
+        '#type' => 'select',
+        '#title' => $this->t('To user'),
+        '#description' => $this->t('This is a list of users that have given permission to receive notifications.'),
+        '#options' => $user_list, // -> then provide filtered list
+      );
+      $form['push_notification']['title'] = array(
+        '#type' => 'textfield',
+        '#title' => $this->t('Title'),
+        '#size' => 47,
+        '#default_value' => 'Open Social',
+        '#disabled' => TRUE,
+        '#description' => $this->t('This will be the <b>title</b> of the Push Notification. <i>(Static value for now)</i>'),
+      );
+      $form['push_notification']['message'] = array(
+        '#type' => 'textfield',
+        '#title' => $this->t('Message'),
+        '#size' => 47,
+        '#maxlength' => 120,
+        '#default_value' => 'Enter your message here...',
+        '#description' => $this->t('This will be the <b>message</b> of the Push Notification.'),
+      );
 
-    $form['push_notification']['title'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Title'),
-      '#size' => 47,
-      '#default_value' => 'Open Social',
-      '#disabled' => TRUE,
-      '#description' => $this->t('This will be the <b>title</b> of the Push Notification. <i>(Static value for now)</i>'),
-    );
-    $form['push_notification']['message'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Message'),
-      '#size' => 47,
-      '#maxlength' => 120,
-      '#default_value' => 'Enter your message here...',
-      '#description' => $this->t('This will be the <b>message</b> of the Push Notification.'),
-    );
+      // TODO: Maybe create a fieldset where the user fills in an url for redirect when the user clicks the notification.
 
-    // TODO: Maybe create a fieldset where the user fills in an url for redirect when the user clicks the notification.
-
-    $form['actions']['#type'] = 'actions';
-    $form['actions']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => $this->t('Send Push Notification'),
-      '#button_type' => 'primary',
-    );
-
+      $form['actions']['#type'] = 'actions';
+      $form['actions']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => $this->t('Send Push Notification'),
+        '#button_type' => 'primary',
+      );
+    }
     return $form;
   }
 
@@ -146,5 +149,4 @@ class PushNotificationForm extends FormBase {
     }
     drupal_set_message($this->t('Message was successfully sent!'));
   }
-
 }

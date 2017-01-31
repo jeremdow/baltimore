@@ -44,11 +44,9 @@ self.addEventListener('push', function (event) {
                 else {
                     sendNotification(data.message)
                 }
-                return sendNotification(data.message);
             })
         );
     }
-
     // NEEDS REVIEW:
     // Create a controller where this sw.js fetches the last payload sent to
     // an subscription by checking it. When the browser is closed and the user
@@ -81,8 +79,6 @@ self.addEventListener('push', function (event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
-    console.log('[Service Worker] Notification click Received.');
-
     // Close the notification when the user clicks it.
     event.notification.close();
 

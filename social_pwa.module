@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Generates and attaches the <meta and <link tags needed for the PWA inside the <head>.
+ *   Generates and attaches the <meta> and <link> tags needed for the PWA inside the <head>
  */
 
 use Drupal\file\Entity\File;
@@ -14,8 +14,7 @@ use Drupal\image\Entity\ImageStyle;
 function social_pwa_page_attachments(array &$page) {
 
   $account =  \Drupal::currentUser();
-
-  // PWA is for logged in users only!
+  // PWA is for logged in users only since we store the subscription ID to the uid.
   if ($account->isAnonymous()) {
     return;
   }
@@ -43,14 +42,15 @@ function social_pwa_page_attachments(array &$page) {
     $page['#attached']['html_head_link'][][] = array(
       // Icon support for Safari on iOS.
       'rel' => 'apple-touch-icon',
-      'href' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_152')->buildUrl($path)),
+      'sizes' => '144x144',
+      'href' => file_url_transform_relative(ImageStyle::load('social_pwa_icon_144')->buildUrl($path)),
     );
 
-    // Attach the Service Worker in the render array
+    // Attach the main.js and sw.js in the render array
     $page['#attached']['library'][] = 'social_pwa/main-js';
     $page['#attached']['library'][] = 'social_pwa/service-worker';
 
-    // Attach the generated Manifest.json
+    // Attach the generated data from /manifest.json
     $page['#attached']['html_head_link'][][] = array(
       // Get the contents of the Manifest
       'rel' => 'manifest',
@@ -86,8 +86,7 @@ function social_pwa_page_attachments(array &$page) {
         '#tag' => 'meta',
         '#attributes' => array(
           'name' => 'apple-mobile-web-app-status-bar-style',
-            'content' => \Drupal::config('social_pwa.settings')
-                ->get('theme_color'),
+            'content' => \Drupal::config('social_pwa.settings')->get('theme_color'),
         ),
       ),
       'apple-mobile-web-app-title' => array(
@@ -97,7 +96,7 @@ function social_pwa_page_attachments(array &$page) {
           'content' => \Drupal::config('social_pwa.settings')->get('short_name'),
         ),
       ),
-      // Windows Support: Tile icon and color for Windows (Should be 144x144)
+      // Windows Mobile Support: Tile icon and color for Windows Mobile.
       'msapplication-TileImage' => array(
         '#tag' => 'meta',
         '#attributes' => array(
@@ -109,8 +108,7 @@ function social_pwa_page_attachments(array &$page) {
         '#tag' => 'meta',
         '#attributes' => array(
           'name' => 'msapplication-TileColor',
-          'content' => \Drupal::config('social_pwa.settings')
-            ->get('theme_color'),
+          'content' => \Drupal::config('social_pwa.settings')->get('theme_color'),
         ),
       ),
       // Color the status bar on mobile devices

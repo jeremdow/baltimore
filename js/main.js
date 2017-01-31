@@ -127,7 +127,7 @@
 
             // Install banner section below
             window.addEventListener('beforeinstallprompt', function(e) {
-                console.log('[Service Worker] beforeinstallprompt event fired.');
+                console.log('[Main] beforeinstallprompt event fired.');
 
                 // e.userChoice will return a Promise. For more details read: http://www.html5rocks.com/en/tutorials/es6/promises/
                 e.userChoice.then(function(choiceResult) {

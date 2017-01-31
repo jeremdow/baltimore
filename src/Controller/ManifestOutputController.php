@@ -19,7 +19,6 @@ class ManifestOutputController extends ControllerBase{
 
     // Get all the current settings stored in social_pwa.settings.
     $config = \Drupal::config('social_pwa.settings')->get();
-
     // Get the specific icons. Needed to get the correct path of the file.
     $icon = \Drupal::config('social_pwa.settings')->get('icons.icon');
 

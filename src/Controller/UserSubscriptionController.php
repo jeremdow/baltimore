@@ -19,10 +19,8 @@ class UserSubscriptionController extends ControllerBase {
   public function saveSubscription() {
     /** @var User $account */
     $account =  \Drupal::currentUser();
-
     // Get the subscription object in which we obtain the endpoint
     $subscriptionData = json_decode(\Drupal::request()->getContent(), TRUE);
-
     // First fetch user data.
     $user_data = \Drupal::service('user.data')->get('social_pwa', $account->id(), 'subscription');
 
