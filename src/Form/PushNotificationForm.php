@@ -127,9 +127,9 @@ class PushNotificationForm extends FormBase {
 
       $auth = array(
         'VAPID' => array(
-          'subject' => 'mailto:frankgraave@gmail.com', // Can be a "mailto:" or a website address
-          'publicKey' => 'BFhe5EFfcPn0XDnBAgNGPIqKocwI-yimiWet1fQXNbFtCwlRzmGVDTJoG8fjxjXEXmFqt8BzcaDtkFyTdUk2cb8', // (recommended) uncompressed public key P-256 encoded in Base64-URL
-          'privateKey' => '4iyfc5VbYDifpZ9170MY-xDXVjEmg3tOKRriFFl4Wxo', // (recommended) in fact the secret multiplier of the private key encoded in Base64-URL
+          'subject' => '', // Can be a "mailto:" or a website address
+          'publicKey' => '', // (recommended) uncompressed public key P-256 encoded in Base64-URL
+          'privateKey' => '', // (recommended) in fact the secret multiplier of the private key encoded in Base64-URL
         ),
       );
 
